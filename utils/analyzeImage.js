@@ -9,7 +9,7 @@ function convertToBase64(filePath) {
 }
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Make sure to set this environment variable
+  
 });
     
 async function analyzeImage(imagePath) {
