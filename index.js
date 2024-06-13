@@ -1,6 +1,8 @@
+require('dotenv').config()
+
 const TelegramBot = require("node-telegram-bot-api");
 
-const token = "7405216330:AAEX_8F-HPIVBXYm9QbN6jjZKQ_iNyn4JSk";
+const token = process.env.TG_BOT_TOKEN;
 
 const bot = new TelegramBot(token, { polling: true });
 const webAppUrl = "https://telegrambot228.netlify.app/";
@@ -24,9 +26,11 @@ const analyzeImage = require("./utils/analyzeImage");
 const multer = require("multer");
 const cors = require("cors");
 const path = require("path");
-const app = require("express")();
+const express = require("express");
+const app = express()
 const port = 5000;
 
+app.use(express.json())
 app.use(cors());
 
 const storage = multer.diskStorage({

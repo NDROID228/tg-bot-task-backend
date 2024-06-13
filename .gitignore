@@ -1,2 +1,4 @@
 /someshit
 /node_modules
+.gitignore
+.env

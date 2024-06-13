@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const fs = require("fs");
 const { OpenAI } = require("openai");
 
@@ -7,7 +9,7 @@ function convertToBase64(filePath) {
 }
 
 const openai = new OpenAI({
-  apiKey: "sk-proj-4oglXjK5ApHvkNlr4OHBT3BlbkFJInloLo5BlPLu0M5txbUB", // Make sure to set this environment variable
+  apiKey: process.env.OPENAI_API_KEY, // Make sure to set this environment variable
 });
     
 async function analyzeImage(imagePath) {
