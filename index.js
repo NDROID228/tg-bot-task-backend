@@ -75,6 +75,10 @@ function checkFileType(file, cb) {
   }
 }
 
+app.get("/", (req, res) => {
+  res.send('this is an api for tg-bot')
+})
+
 // Route for file upload
 app.post("/upload", (req, res) => {
   upload(req, res, async (err) => {
