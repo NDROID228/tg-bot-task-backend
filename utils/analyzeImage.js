@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config();
 
 const fs = require("fs");
 const { OpenAI } = require("openai");
@@ -9,19 +9,21 @@ function convertToBase64(filePath) {
 }
 
 const openai = new OpenAI({
-  
+  apiKey: process.env.OPENAI_API_KEY,
 });
-    
+
 async function analyzeImage(imagePath) {
-  let fileType = imagePath.match(/[^.]*$/)[0];
+  let fileType = imagePath.match(/[^.]*$/)[0].toLowerCase().trim();
 
   if (fileType !== "png") {
     fileType = "jpeg";
   }
+  let image_url = `data:image/${fileType};base64,${await convertToBase64(
+    imagePath
+  )}`;
+  console.log("file:", `data:image/${fileType};base64,${imagePath}`);
 
-  console.log("file type:", fileType);
-
-  let message = undefined
+  let message = undefined;
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4-vision-preview",
@@ -32,23 +34,20 @@ async function analyzeImage(imagePath) {
             { type: "text", text: "Що на цьому зображені?" },
             {
               type: "image_url",
-              image_url: `data:image/${fileType};base64,${convertToBase64(
-                imagePath
-              )}`,
+              image_url: image_url,
             },
           ],
         },
       ],
-      
-      max_tokens: 50
+      max_tokens: 20,
     });
     console.log(response.choices[0]);
-    message = response.choices[0].message;
+    message = response.choices[0].message.content;
   } catch (error) {
     console.log(error);
-    return undefined
+    return undefined;
   }
-  return message
+  return message;
 }
 
 module.exports = analyzeImage;

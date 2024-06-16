@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config();
 
 const TelegramBot = require("node-telegram-bot-api");
 
@@ -7,18 +7,25 @@ const token = process.env.TG_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 const webAppUrl = "https://telegrambot228.netlify.app/";
 
+const chatIdMap = new Map();
+
 bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
 
   if (text === "/start") {
-    await bot.sendMessage(chatId, "Привіт! Натискай на кнопку нижче:", {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "Перейти до застосунку", web_app: { url: webAppUrl } }],
-        ],
-      },
-    });
+    await bot.sendMessage(
+      chatId,
+      "Привіт! Я - чат-бот, який використовує OpenAI API для опису картинок.\nНатискай кнопку нижче, щоб перейти до застосунку:",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Перейти до застосунку", web_app: { url: webAppUrl } }],
+          ],
+        },
+      }
+    );
+    chatIdMap.set(chatId, true);
   }
 });
 
@@ -27,10 +34,10 @@ const multer = require("multer");
 const cors = require("cors");
 const path = require("path");
 const express = require("express");
-const app = express()
+const app = express();
 const port = 5000;
 
-app.use(express.json())
+app.use(express.json());
 app.use(cors());
 
 const storage = multer.diskStorage({
@@ -76,24 +83,30 @@ app.post("/upload", (req, res) => {
       res.status(400).send({ message: err });
     } else {
       if (req.file == undefined) {
-        res.status(400).send({ message: "No file selected!" });
+        res.status(400).send({ message: "No file selected!", ok: false });
       } else {
-        // res.send({
-        //   message: "File uploaded!",
-        //   file: `uploads/${req.file.filename}`,
-        // });
-
         try {
           const description = await analyzeImage(
             `uploads/${req.file.filename}`
           );
-          description
-            ? res.send({ message: `На зображенні: ${description}` })
-            : res.send({ message: `Щось пішло не так... Спробуйте ще.` });
+          if (description !== undefined) {
+            const chatId = Array.from(chatIdMap.keys())[0];
+            if (chatId) {
+              bot.sendMessage(chatId, description);
+              chatIdMap.delete(chatId);
+            }
+            res.send({ message: `Бот надає відповідь.`, ok: true });
+          } else {
+            res.send({
+              message: `Щось пішло не так... Спробуйте ще.`,
+              ok: false,
+            });
+          }
         } catch (error) {
-          res
-            .status(500)
-            .send({ message: "Під час обробки картинки виникла помилка..." });
+          res.status(500).send({
+            message: "Під час обробки картинки виникла помилка...",
+            ok: false,
+          });
         }
       }
     }
