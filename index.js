@@ -14,6 +14,7 @@ bot.on("message", async (msg) => {
   const text = msg.text;
 
   if (text === "/start") {
+    console.log("bot message: /start");
     await bot.sendMessage(
       chatId,
       "Привіт! Я - чат-бот, який використовує OpenAI API для опису картинок.\nНатискай кнопку нижче, щоб перейти до застосунку:",
