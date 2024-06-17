@@ -3,7 +3,7 @@ require("dotenv").config();
 const fs = require("fs");
 const { OpenAI } = require("openai");
 
-function convertToBase64(filePath) {
+async function convertToBase64(filePath) {
   let fileData = fs.readFileSync(filePath);
   return new Buffer.from(fileData).toString("base64");
 }
@@ -13,7 +13,10 @@ const openai = new OpenAI({
 });
 
 async function analyzeImage(imagePath) {
-  let fileType = imagePath.match(/[^.]*$/)[0].toLowerCase().trim();
+  let fileType = imagePath
+    .match(/[^.]*$/)[0]
+    .toLowerCase()
+    .trim();
 
   if (fileType !== "png") {
     fileType = "jpeg";
