@@ -92,37 +92,34 @@ app.get("/", (req, res) => {
 });
 
 // Route for file upload
-app.post("/upload", (req, res) => {
+app.post("/upload", async (req, res) => {
   console.log(req.url);
-  upload(req, res, async (err) => {
-    if (err) {
-      console.log("/upload err " + err);
-      res.status(400).send({ message: err });
+  console.log(req.file.buffer);
+  if (err) {
+    console.log("/upload err " + err);
+    res.status(400).send({ message: err });
+  } else {
+    if (req.file == undefined) {
+      res.status(400).send({ message: "No file selected!", ok: false });
     } else {
-      if (req.file == undefined) {
-        res.status(400).send({ message: "No file selected!", ok: false });
-      } else {
-        try {
-          const description = await analyzeImage(
-            `uploads/${req.file.filename}`
-          );
-          if (description !== undefined) {
-            res.send({ message: description, ok: true });
-          } else {
-            res.send({
-              message: `Щось пішло не так... Спробуйте ще.`,
-              ok: false,
-            });
-          }
-        } catch (error) {
-          res.status(500).send({
-            message: "Під час обробки картинки виникла помилка...",
+      try {
+        const description = await analyzeImage(req.file.filename, req.file.buffer);
+        if (description !== undefined) {
+          res.send({ message: description, ok: true });
+        } else {
+          res.send({
+            message: `Щось пішло не так... Спробуйте ще.`,
             ok: false,
           });
         }
+      } catch (error) {
+        res.status(500).send({
+          message: "Під час обробки картинки виникла помилка...",
+          ok: false,
+        });
       }
     }
-  });
+  }
 });
 
 app.listen(port, () => console.log(`Server started on port ${port}`));

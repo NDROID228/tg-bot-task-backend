@@ -12,8 +12,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function analyzeImage(imagePath) {
-  let fileType = imagePath
+async function analyzeImage(imageName, imageBuffer) {
+  let fileType = imageName
     .match(/[^.]*$/)[0]
     .toLowerCase()
     .trim();
@@ -21,10 +21,8 @@ async function analyzeImage(imagePath) {
   if (fileType !== "png") {
     fileType = "jpeg";
   }
-  let image_url = `data:image/${fileType};base64,${await convertToBase64(
-    imagePath
-  )}`;
-  console.log("file:", `data:image/${fileType};base64,${imagePath}`);
+  let image_url = `data:image/${fileType};base64,${imageBuffer}`;
+  console.log("file:", `data:image/${fileType};base64,${imageName}`);
 
   let message = undefined;
   try {
