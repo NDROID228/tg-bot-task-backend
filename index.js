@@ -28,6 +28,16 @@ bot.on("message", async (msg) => {
     );
     chatIdMap.set(chatId, true);
   }
+  if (msg.web_app_data?.data) {
+    try {
+      const data = JSON.parse(msg.web_app_data?.data);
+
+      console.log(data);
+      // bot.sendMessage(chatId, data)
+    } catch (e) {
+      console.log(e);
+    }
+  }
 });
 
 const analyzeImage = require("./utils/analyzeImage");
@@ -78,8 +88,8 @@ function checkFileType(file, cb) {
 
 app.get("/", (req, res) => {
   console.log(req.url);
-  res.send('this is an api for tg-bot')
-})
+  res.send("this is an api for tg-bot");
+});
 
 // Route for file upload
 app.post("/upload", (req, res) => {
@@ -97,12 +107,7 @@ app.post("/upload", (req, res) => {
             `uploads/${req.file.filename}`
           );
           if (description !== undefined) {
-            const chatId = Array.from(chatIdMap.keys())[0];
-            if (chatId) {
-              bot.sendMessage(chatId, description);
-              chatIdMap.delete(chatId);
-            }
-            res.send({ message: `Бот надає відповідь.`, ok: true });
+            res.send({ message: description, ok: true });
           } else {
             res.send({
               message: `Щось пішло не так... Спробуйте ще.`,
