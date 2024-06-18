@@ -48,6 +48,8 @@ app.use(require("cors")());
 // Check file type
 function checkFileType(mimetype, extname) {
   // Allowed ext
+  console.log("mimetype:", mimetype, "extname:", extname);
+  console.log(filetypes.test(mimetype), filetypes.test(extname));
   const filetypes = /jpeg|jpg|png/;
   return filetypes.test(mimetype) && filetypes.test(extname);
 }
