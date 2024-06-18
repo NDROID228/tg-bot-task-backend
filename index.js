@@ -30,7 +30,7 @@ bot.on("message", async (msg) => {
       const data = JSON.parse(msg.web_app_data?.data);
 
       console.log(data);
-      // bot.sendMessage(chatId, data)
+      bot.sendMessage(chatId, data)
     } catch (e) {
       console.log(e);
     }
@@ -67,6 +67,7 @@ app.post("/upload", async (req, res) => {
   console.log(req.files)
   try {
     if (!req.files || !req.files.image) {
+      console.log();
       return res.status(400).send({
         message: "No image file uploaded.",
         ok: false,
