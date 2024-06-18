@@ -100,6 +100,8 @@ app.post("/upload", (req, res) => {
     });
 
     if (!imageBuffer || !checkFileType(mimetype, extname)) {
+      console.log("imageBuffer:", imageBuffer);
+      console.log("checkFileType(mimetype, extname):", checkFileType(mimetype, extname));
       return res
         .status(400)
         .send({ message: "Error: Images Only!", ok: false });
