@@ -4,7 +4,7 @@ const TelegramBot = require("node-telegram-bot-api");
 
 const token = process.env.TG_BOT_TOKEN;
 
-const bot = new TelegramBot(token, { polling: false });
+const bot = new TelegramBot(token, { polling: true });
 const webAppUrl = "https://telegrambot228.netlify.app/";
 
 bot.on("message", async (msg) => {
