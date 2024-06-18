@@ -12,7 +12,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function analyzeImage(imageName, imageBuffer) {
+async function analyzeImage(imageBuffer) {
   let fileType = imageName
     .match(/[^.]*$/)[0]
     .toLowerCase()

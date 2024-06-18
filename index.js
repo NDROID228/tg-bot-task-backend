@@ -7,8 +7,6 @@ const token = process.env.TG_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 const webAppUrl = "https://telegrambot228.netlify.app/";
 
-const chatIdMap = new Map();
-
 bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
@@ -26,7 +24,6 @@ bot.on("message", async (msg) => {
         },
       }
     );
-    chatIdMap.set(chatId, true);
   }
   if (msg.web_app_data?.data) {
     try {
@@ -41,49 +38,18 @@ bot.on("message", async (msg) => {
 });
 
 const analyzeImage = require("./utils/analyzeImage");
-const multer = require("multer");
-const cors = require("cors");
-const path = require("path");
 const express = require("express");
 const app = express();
 const port = 5000;
 
 app.use(express.json());
-app.use(cors());
-
-const storage = multer.diskStorage({
-  destination: "./uploads/",
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-
-// Init upload
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 10000000 }, // 10MB limit
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
-  },
-}).single("image");
+app.use(require("cors")());
 
 // Check file type
-function checkFileType(file, cb) {
+function checkFileType(mimetype, extname) {
   // Allowed ext
   const filetypes = /jpeg|jpg|png/;
-  // Check ext
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  // Check mime
-  const mimetype = filetypes.test(file.mimetype);
-
-  if (mimetype && extname) {
-    return cb(null, true);
-  } else {
-    cb("Error: Images Only!");
-  }
+  return filetypes.test(mimetype) && filetypes.test(extname);
 }
 
 app.get("/", (req, res) => {
@@ -92,34 +58,71 @@ app.get("/", (req, res) => {
 });
 
 // Route for file upload
-app.post("/upload", async (req, res) => {
-  console.log(req.url);
-  console.log(req.file.buffer);
-  if (err) {
-    console.log("/upload err " + err);
-    res.status(400).send({ message: err });
-  } else {
-    if (req.file == undefined) {
-      res.status(400).send({ message: "No file selected!", ok: false });
-    } else {
-      try {
-        const description = await analyzeImage(req.file.filename, req.file.buffer);
-        if (description !== undefined) {
-          res.send({ message: description, ok: true });
-        } else {
-          res.send({
-            message: `Щось пішло не так... Спробуйте ще.`,
-            ok: false,
-          });
+app.post("/upload", (req, res) => {
+  const boundary = req.headers["content-type"].split("boundary=")[1];
+
+  let body = "";
+  req.on("data", (data) => {
+    body += data;
+  });
+
+  req.on("end", async () => {
+    const parts = body.split(`--${boundary}`);
+    let imageBuffer = null;
+    let mimetype = null;
+    let extname = null;
+
+    parts.forEach((part) => {
+      if (part.includes('Content-Disposition: form-data; name="image"')) {
+        const headers = part
+          .split("\r\n")
+          .filter(
+            (line) =>
+              line.includes("Content-Disposition") ||
+              line.includes("Content-Type")
+          );
+        const contentTypeHeader = headers.find((header) =>
+          header.includes("Content-Type")
+        );
+        if (contentTypeHeader) {
+          mimetype = contentTypeHeader.split(": ")[1];
+          extname = mimetype.split("/")[1];
         }
-      } catch (error) {
-        res.status(500).send({
-          message: "Під час обробки картинки виникла помилка...",
+
+        const start = part.indexOf("\r\n\r\n") + 4;
+        const end = part.lastIndexOf("\r\n");
+
+        if (start !== -1 && end !== -1) {
+          const imageData = part.substring(start, end);
+          imageBuffer = Buffer.from(imageData, "binary");
+        }
+      }
+    });
+
+    if (!imageBuffer || !checkFileType(mimetype, extname)) {
+      return res
+        .status(400)
+        .send({ message: "Error: Images Only!", ok: false });
+    }
+
+    try {
+      console.log(imageBuffer);
+      const description = await analyzeImage(imageBuffer);
+      if (description !== undefined) {
+        res.send({ message: description, ok: true });
+      } else {
+        res.send({
+          message: `Щось пішло не так... Спробуйте ще.`,
           ok: false,
         });
       }
+    } catch (error) {
+      res.status(500).send({
+        message: "Під час обробки картинки виникла помилка...",
+        ok: false,
+      });
     }
-  }
+  });
 });
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
