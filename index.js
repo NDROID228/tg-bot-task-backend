@@ -67,7 +67,7 @@ app.post("/upload", async (req, res) => {
   console.log(req.files)
   try {
     if (!req.files || !req.files.image) {
-      console.log();
+      console.log(req.files, req.files.image);
       return res.status(400).send({
         message: "No image file uploaded.",
         ok: false,
