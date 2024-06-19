@@ -27,9 +27,9 @@ bot.on("message", async (msg) => {
   }
   if (msg.web_app_data?.data) {
     try {
-      const data = JSON.parse(msg.web_app_data?.data) 
+      const data = JSON.parse(msg.web_app_data?.data);
       console.log(data);
-      bot.sendMessage(chatId, data)
+      bot.sendMessage(chatId, data);
     } catch (e) {
       console.log(e);
     }
@@ -37,14 +37,15 @@ bot.on("message", async (msg) => {
 });
 
 const analyzeImage = require("./utils/analyzeImage");
-const fs = require('fs')
+const fs = require("fs");
 const express = require("express");
-const formidable = require("express-formidable")
+const formidable = require("express-formidable");
+const FileReader = require("filereader");
 const app = express();
 const port = 5000;
 
 app.use(express.json());
-app.use(formidable())
+app.use(formidable());
 app.use(require("cors")());
 
 // Check file type
@@ -63,7 +64,7 @@ app.get("/", (req, res) => {
 
 // Route for file upload
 app.post("/upload", async (req, res) => {
-  console.log(req.files)
+  console.log(req.files);
   try {
     if (!req.files || !req.files.image) {
       console.log(req.files, req.files.image);
@@ -74,25 +75,30 @@ app.post("/upload", async (req, res) => {
     }
 
     const file = req.files.image;
-    const mimetype = file.type;
-    const extname = file.name.split('.').pop();
+    const mimetype = file.type.toLowerCase();
+    const extname = file.name.split(".").pop();
 
     if (!checkFileType(mimetype, extname)) {
       return res.status(400).send({
-        message: "Хибний формат файлу. Тільки JPEG, JPG, and PNG файли дозволені.",
+        message:
+          "Хибний формат файлу. Тільки JPEG, JPG, and PNG файли дозволені.",
         ok: false,
       });
     }
+    const reader = new FileReader();
+    reader.readAsDataURL(imageFile);
 
-    const description = await analyzeImage(file);
-    if (description !== undefined) {
-      res.send({ message: description, ok: true });
-    } else {
-      res.send({
-        message: `Щось пішло не так... Спробуйте ще.`,
-        ok: false,
-      });
-    }
+    reader.addEventListener("load", async () => {
+      const description = await analyzeImage(reader.result);
+      if (description !== undefined) {
+        res.send({ message: description, ok: true });
+      } else {
+        res.send({
+          message: `Щось пішло не так... Спробуйте ще.`,
+          ok: false,
+        });
+      }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send({

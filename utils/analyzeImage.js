@@ -1,7 +1,6 @@
 require("dotenv").config();
 
 const fs = require("fs");
-const FileReader = require("filereader");
 const { OpenAI } = require("openai");
 
 async function convertToBase64(file) {
@@ -13,9 +12,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const reader = new FileReader();
-
-async function askVision () {
+async function analyzeImage(imageFile) {
   let message = undefined;
 
   try {
@@ -40,13 +37,6 @@ async function askVision () {
   } catch (error) {
     console.log(error);
   }
-  return message;
-};
-async function analyzeImage(imageFile) {
-
-  reader.readAsDataURL(imageFile);
-  reader.addEventListener("load", askVision());
-  reader.removeEventListener(askVision);
   return message;
 }
 
