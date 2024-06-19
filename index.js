@@ -113,12 +113,17 @@ app.post("/upload", async (req, res) => {
               },
             })
             .then(() =>
-              res.status(500).send({ message: "Не вділося отримати відповідь Vision", ok: true })
+              res
+                .status(500)
+                .send({
+                  message: "Не вділося отримати відповідь Vision",
+                  ok: false,
+                })
             )
             .catch(() =>
               res.status(500).send({
                 message: "Не вділося отримати відповідь Vision",
-                ok: true,
+                ok: false,
               })
             );
         }
