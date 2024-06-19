@@ -27,8 +27,9 @@ bot.on("message", async (msg) => {
   }
   if (msg.web_app_data?.data) {
     try {
+      console.log("unparsed description from bot:", msg.web_app_data?.data);
       const data = JSON.parse(msg.web_app_data?.data);
-      console.log(data);
+      console.log("description from bot:", data);
       bot.sendMessage(chatId, data);
     } catch (e) {
       console.log(e);
@@ -91,6 +92,7 @@ app.post("/upload", async (req, res) => {
     reader.addEventListener("load", async () => {
       const description = await analyzeImage(reader.result);
       if (description !== undefined) {
+        console.log("description:", description);
         res.send({ message: description, ok: true });
       } else {
         res.send({
