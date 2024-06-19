@@ -86,7 +86,7 @@ app.post("/upload", async (req, res) => {
       });
     }
     const reader = new FileReader();
-    reader.readAsDataURL(imageFile);
+    reader.readAsDataURL(file);
 
     reader.addEventListener("load", async () => {
       const description = await analyzeImage(reader.result);
