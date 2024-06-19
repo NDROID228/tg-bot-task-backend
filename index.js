@@ -40,7 +40,7 @@ bot.on("message", async (msg) => {
 const analyzeImage = require("./utils/analyzeImage");
 const express = require("express");
 const formidable = require("express-formidable");
-const bodyparser = require("body-parser");
+const bodyParser = require("body-parser");
 const FileReader = require("filereader");
 const app = express();
 const port = 5000;
@@ -49,7 +49,6 @@ app.use(express.json());
 app.use(formidable());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(bodyParser());
 app.use(require("cors")());
 
 // Check file type
