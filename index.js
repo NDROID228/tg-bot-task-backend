@@ -84,9 +84,7 @@ app.post("/upload", async (req, res) => {
       });
     }
 
-    const imageBuffer = file.path ? await fs.promises.readFile(file.path) : file.data;
-
-    const description = await analyzeImage(mimetype, imageBuffer);
+    const description = await analyzeImage(file);
     if (description !== undefined) {
       res.send({ message: description, ok: true });
     } else {
