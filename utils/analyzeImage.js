@@ -12,7 +12,10 @@ async function convertToBase64(file) {
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-async function askVision (image_url) {
+
+const reader = new FileReader();
+
+async function askVision () {
   let message = undefined;
 
   try {
@@ -25,7 +28,7 @@ async function askVision (image_url) {
             { type: "text", text: "Що на цьому зображені?" },
             {
               type: "image_url",
-              image_url: image_url,
+              image_url: reader.result,
             },
           ],
         },
@@ -41,9 +44,8 @@ async function askVision (image_url) {
 };
 async function analyzeImage(imageFile) {
 
-  const reader = new FileReader();
   reader.readAsDataURL(imageFile);
-  reader.addEventListener("load", askVision(reader.result));
+  reader.addEventListener("load", askVision());
   reader.removeEventListener(askVision);
   return message;
 }
