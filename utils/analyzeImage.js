@@ -25,7 +25,7 @@ async function analyzeImage(imageFile) {
             { type: "text", text: "Що на цьому зображені?" },
             {
               type: "image_url",
-              image_url: reader.result,
+              image_url: imageFile,
             },
           ],
         },
