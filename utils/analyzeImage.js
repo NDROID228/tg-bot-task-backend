@@ -21,7 +21,7 @@ async function analyzeImage(fileType, imageBuffer) {
       model: "gpt-4-vision-preview",
       messages: [
         {
-          role: "system",
+          role: "user",
           content: [
             { type: "text", text: "Що на цьому зображені?" },
             {
