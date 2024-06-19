@@ -31,9 +31,8 @@ bot.on("message", async (msg) => {
   if (msg.web_app_data?.data) {
     try {
       const data = JSON.parse(msg.web_app_data?.data);
-
-      console.log(data);
-      // bot.sendMessage(chatId, data)
+      
+      bot.sendMessage(chatId, data)
     } catch (e) {
       console.log(e);
     }
