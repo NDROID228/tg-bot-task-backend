@@ -41,6 +41,7 @@ const analyzeImage = require("./utils/analyzeImage");
 const fs = require("fs");
 const express = require("express");
 const formidable = require("express-formidable");
+const b
 const FileReader = require("filereader");
 const app = express();
 const port = 5000;
