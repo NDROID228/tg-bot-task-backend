@@ -21,11 +21,12 @@ bot.on("message", async (msg) => {
           inline_keyboard: [
             [{ text: "Перейти до застосунку", web_app: { url: webAppUrl } }],
           ],
+
         },
       }
     );
   }
-  if (msg.web_app_data?.data) {
+  if (msg?.web_app_data?.data) {
     try {
       console.log("unparsed description from bot:", msg.web_app_data?.data);
       const data = JSON.parse(msg.web_app_data?.data);
