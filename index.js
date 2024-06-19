@@ -38,16 +38,18 @@ bot.on("message", async (msg) => {
 });
 
 const analyzeImage = require("./utils/analyzeImage");
-const fs = require("fs");
 const express = require("express");
 const formidable = require("express-formidable");
-const b
+const bodyparser = require("body-parser");
 const FileReader = require("filereader");
 const app = express();
 const port = 5000;
 
 app.use(express.json());
 app.use(formidable());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser());
 app.use(require("cors")());
 
 // Check file type
@@ -67,8 +69,8 @@ app.get("/", (req, res) => {
 // Route for file upload
 app.post("/upload", async (req, res) => {
   console.log(req.files);
-  const { queryId } = req.files;
-  console.log(queryId, req.files);
+  const { queryId } = req.body;
+  console.log("queryId:", queryId, "req.body:", req.body);
   try {
     if (!req.files || !req.files.image) {
       console.log(req.files, req.files.image);
@@ -114,12 +116,10 @@ app.post("/upload", async (req, res) => {
               },
             })
             .then(() =>
-              res
-                .status(500)
-                .send({
-                  message: "Не вділося отримати відповідь Vision",
-                  ok: false,
-                })
+              res.status(500).send({
+                message: "Не вділося отримати відповідь Vision",
+                ok: false,
+              })
             )
             .catch(() =>
               res.status(500).send({
