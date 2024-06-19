@@ -27,9 +27,9 @@ bot.on("message", async (msg) => {
   }
   if (msg.web_app_data?.data) {
     try {
-      const data = JSON.parse(msg.web_app_data?.data)
+      const data = JSON.parse(msg.web_app_data?.data);
       console.log(data);
-      bot.sendMessage(chatId, data)
+      bot.sendMessage(chatId, data);
     } catch (e) {
       console.log(e);
     }
@@ -37,14 +37,14 @@ bot.on("message", async (msg) => {
 });
 
 const analyzeImage = require("./utils/analyzeImage");
-const fs = require('fs')
+const fs = require("fs");
 const express = require("express");
-const formidable = require("express-formidable")
+const formidable = require("express-formidable");
 const app = express();
 const port = 5000;
 
 app.use(express.json());
-app.use(formidable())
+app.use(formidable());
 app.use(require("cors")());
 
 // Check file type
@@ -63,45 +63,36 @@ app.get("/", (req, res) => {
 
 // Route for file upload
 app.post("/upload", async (req, res) => {
-  console.log(req.files)
-  try {
-    if (!req.files || !req.files.image) {
-      console.log(req.files, req.files.image);
-      return res.status(400).send({
-        message: "No image file uploaded.",
+  let body = "";
+  req.on("data", (chunk) => (body += chunk));
+  req.on("end", async () => {
+    console.log(body);
+    try {
+      if (!body) {
+        return res.status(400).send({
+          message:
+            "Файл не надано.",
+          ok: false,
+        });
+      }
+
+      const description = await analyzeImage(body);
+      if (description !== undefined) {
+        res.send({ message: description, ok: true });
+      } else {
+        res.send({
+          message: `Щось пішло не так... Спробуйте ще.`,
+          ok: false,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({
+        message: "Під час обробки картинки виникла помилка...",
         ok: false,
       });
     }
-
-    const file = req.files.image;
-    const mimetype = file.type;
-    const extname = file.name.split('.').pop();
-
-    if (!checkFileType(mimetype, extname)) {
-      return res.status(400).send({
-        message: "Хибний формат файлу. Тільки JPEG, JPG, and PNG файли дозволені.",
-        ok: false,
-      });
-    }
-
-    const imageBuffer = file.path ? await fs.promises.readFile(file.path) : file.data;
-
-    const description = await analyzeImage(mimetype, imageBuffer);
-    if (description !== undefined) {
-      res.send({ message: description, ok: true });
-    } else {
-      res.send({
-        message: `Щось пішло не так... Спробуйте ще.`,
-        ok: false,
-      });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      message: "Під час обробки картинки виникла помилка...",
-      ok: false,
-    });
-  }
+  });
   // try {
   //   console.log(imageBuffer);
   //   const description = await analyzeImage(fileType, imageBuffer);
