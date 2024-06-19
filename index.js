@@ -18,7 +18,7 @@ bot.on("message", async (msg) => {
       "Привіт! Я - чат-бот, який використовує OpenAI API для опису картинок.\nНатискай кнопку нижче, щоб перейти до застосунку:",
       {
         reply_markup: {
-          inline_keyboard: [
+          keyboard_button: [
             [{ text: "Перейти до застосунку", web_app: { url: webAppUrl } }],
           ],
         },
