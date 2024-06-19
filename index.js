@@ -67,6 +67,7 @@ app.get("/", (req, res) => {
 app.post("/upload", async (req, res) => {
   console.log(req.files);
   const { queryId } = req.body;
+  console.log(queryId, req.body);
   try {
     if (!req.files || !req.files.image) {
       console.log(req.files, req.files.image);
@@ -101,7 +102,7 @@ app.post("/upload", async (req, res) => {
             title: "Відповідь Vision",
             input_message_content: { message_text: description },
           });
-          res.status(200).send({ message: "", ok: true });
+          res.status(200).send({ message: "Відповідь Vision", ok: true });
         } catch (e) {
           console.log(e);
           await bot.answerWebAppQuery(queryId, {
