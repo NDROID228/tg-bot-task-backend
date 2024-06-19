@@ -21,7 +21,6 @@ bot.on("message", async (msg) => {
           inline_keyboard: [
             [{ text: "Перейти до застосунку", web_app: { url: webAppUrl } }],
           ],
-
         },
       }
     );
@@ -67,6 +66,7 @@ app.get("/", (req, res) => {
 // Route for file upload
 app.post("/upload", async (req, res) => {
   console.log(req.files);
+  const { queryId } = req.body;
   try {
     if (!req.files || !req.files.image) {
       console.log(req.files, req.files.image);
@@ -94,7 +94,27 @@ app.post("/upload", async (req, res) => {
       const description = await analyzeImage(reader.result);
       if (description !== undefined) {
         console.log("description:", description);
-        res.send({ message: description, ok: true });
+        try {
+          await bot.answerWebAppQuery(queryId, {
+            type: "article",
+            id: queryId,
+            title: "Відповідь Vision",
+            input_message_content: { message_text: description },
+          });
+          res.status(200).send({ message: "", ok: true });
+        } catch (e) {
+          console.log(e);
+          await bot.answerWebAppQuery(queryId, {
+            type: "article",
+            id: queryId,
+            title: "Не вділося отримати відповідь Vision",
+            input_message_content: {
+              message_text: "Не вділося отримати відповідь Vision",
+            },
+          });
+          res.status(500).send({ message: "Не вділося отримати відповідь Vision", ok: true });
+        }
+        
       } else {
         res.send({
           message: `Щось пішло не так... Спробуйте ще.`,
@@ -109,23 +129,6 @@ app.post("/upload", async (req, res) => {
       ok: false,
     });
   }
-  // try {
-  //   console.log(imageBuffer);
-  //   const description = await analyzeImage(fileType, imageBuffer);
-  //   if (description !== undefined) {
-  //     res.send({ message: description, ok: true });
-  //   } else {
-  //     res.send({
-  //       message: `Щось пішло не так... Спробуйте ще.`,
-  //       ok: false,
-  //     });
-  //   }
-  // } catch (error) {
-  //   res.status(500).send({
-  //     message: "Під час обробки картинки виникла помилка...",
-  //     ok: false,
-  //   });
-  // }
 });
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
