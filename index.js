@@ -102,20 +102,26 @@ app.post("/upload", async (req, res) => {
             title: "Відповідь Vision",
             input_message_content: { message_text: description },
           });
-          res.status(200).send({ message: "Відповідь Vision", ok: true });
         } catch (e) {
-          console.log(e);
-          await bot.answerWebAppQuery(queryId, {
-            type: "article",
-            id: queryId,
-            title: "Не вділося отримати відповідь Vision",
-            input_message_content: {
-              message_text: "Не вділося отримати відповідь Vision",
-            },
-          });
-          res.status(500).send({ message: "Не вділося отримати відповідь Vision", ok: true });
+          await bot
+            .answerWebAppQuery(queryId, {
+              type: "article",
+              id: queryId,
+              title: "Не вділося отримати відповідь Vision",
+              input_message_content: {
+                message_text: "Не вділося отримати відповідь Vision",
+              },
+            })
+            .then(() =>
+              res.status(500).send({ message: "Не вділося отримати відповідь Vision", ok: true })
+            )
+            .catch(() =>
+              res.status(500).send({
+                message: "Не вділося отримати відповідь Vision",
+                ok: true,
+              })
+            );
         }
-        
       } else {
         res.send({
           message: `Щось пішло не так... Спробуйте ще.`,
