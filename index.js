@@ -66,8 +66,8 @@ app.get("/", (req, res) => {
 // Route for file upload
 app.post("/upload", async (req, res) => {
   console.log(req.files);
-  const { queryId } = req.body;
-  console.log(queryId, req.body);
+  const { queryId } = req.files;
+  console.log(queryId, req.files);
   try {
     if (!req.files || !req.files.image) {
       console.log(req.files, req.files.image);
