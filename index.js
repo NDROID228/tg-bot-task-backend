@@ -100,15 +100,14 @@ app.post("/upload", async (req, res) => {
           if (description !== undefined) {
             console.log("description:", description);
 
-            await bot
-              .answerWebAppQuery(queryId, {
+            bot.answerWebAppQuery(queryId, {
                 type: "article",
                 id: queryId,
                 title: "Відповідь Vision",
                 input_message_content: { message_text: description },
               })
               .then((description) => {
-                console.log("succesful query: " + description);
+                console.log("succesful query: ");
               })
               .catch((error) => {
                 console.log(error);
