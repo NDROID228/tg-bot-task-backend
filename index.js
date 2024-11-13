@@ -93,47 +93,57 @@ app.post("/upload", async (req, res) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
 
-    reader.addEventListener("load", async () => {
-      const description = await analyzeImage(reader.result);
-      if (description !== undefined) {
-        console.log("description:", description);
-        try {
-          await bot.answerWebAppQuery(queryId, {
-            type: "article",
-            id: queryId,
-            title: "Відповідь Vision",
-            input_message_content: { message_text: description },
-          });
-        } catch (e) {
-          await bot
-            .answerWebAppQuery(queryId, {
-              type: "article",
-              id: queryId,
-              title: "Не вділося отримати відповідь Vision",
-              input_message_content: {
-                message_text: "Не вділося отримати відповідь Vision",
-              },
-            })
-            .then(() =>
-              res.status(500).send({
-                message: "Не вділося отримати відповідь Vision",
-                ok: false,
-              })
-            )
-            .catch(() =>
-              res.status(500).send({
-                message: "Не вділося отримати відповідь Vision",
-                ok: false,
-              })
-            );
-        }
-      } else {
-        res.send({
-          message: `Щось пішло не так... Спробуйте ще.`,
+    reader
+      .addEventListener("load", async () => {
+        const promise = analyzeImage(reader.result);
+        promise.then(async (description) => {
+          if (description !== undefined) {
+            console.log("description:", description);
+            try {
+              await bot.answerWebAppQuery(queryId, {
+                type: "article",
+                id: queryId,
+                title: "Відповідь Vision",
+                input_message_content: { message_text: description },
+              });
+            } catch (e) {
+              await bot
+                .answerWebAppQuery(queryId, {
+                  type: "article",
+                  id: queryId,
+                  title: "Не вділося отримати відповідь Vision",
+                  input_message_content: {
+                    message_text: "Не вділося отримати відповідь Vision",
+                  },
+                })
+                .then(() =>
+                  res.status(500).send({
+                    message: "Не вділося отримати відповідь Vision",
+                    ok: false,
+                  })
+                )
+                .catch(() =>
+                  res.status(500).send({
+                    message: "Не вділося отримати відповідь Vision",
+                    ok: false,
+                  })
+                );
+            }
+          } else {
+            res.send({
+              message: `Щось пішло не так... Спробуйте ще.`,
+              ok: false,
+            });
+          }
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send({
+          message: "Під час обробки картинки виникла помилка...",
           ok: false,
         });
-      }
-    });
+      });
   } catch (error) {
     console.error(error);
     res.status(500).send({
