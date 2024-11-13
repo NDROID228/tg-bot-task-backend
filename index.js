@@ -99,36 +99,41 @@ app.post("/upload", async (req, res) => {
         promise.then(async (description) => {
           if (description !== undefined) {
             console.log("description:", description);
-            try {
-              await bot.answerWebAppQuery(queryId, {
+
+            await bot
+              .answerWebAppQuery(queryId, {
                 type: "article",
                 id: queryId,
                 title: "Відповідь Vision",
                 input_message_content: { message_text: description },
+              })
+              .then((description) => {
+                console.log("succesful query: " + description);
+              })
+              .catch((error) => {
+                console.log(error);
+                bot
+                  .answerWebAppQuery(queryId, {
+                    type: "article",
+                    id: queryId,
+                    title: "Не вділося отримати відповідь Vision",
+                    input_message_content: {
+                      message_text: "Не вділося отримати відповідь Vision",
+                    },
+                  })
+                  .then(() =>
+                    res.status(500).send({
+                      message: "Не вділося отримати відповідь Vision",
+                      ok: false,
+                    })
+                  )
+                  .catch(() =>
+                    res.status(500).send({
+                      message: "Не вділося отримати відповідь Vision",
+                      ok: false,
+                    })
+                  );
               });
-            } catch (e) {
-              await bot
-                .answerWebAppQuery(queryId, {
-                  type: "article",
-                  id: queryId,
-                  title: "Не вділося отримати відповідь Vision",
-                  input_message_content: {
-                    message_text: "Не вділося отримати відповідь Vision",
-                  },
-                })
-                .then(() =>
-                  res.status(500).send({
-                    message: "Не вділося отримати відповідь Vision",
-                    ok: false,
-                  })
-                )
-                .catch(() =>
-                  res.status(500).send({
-                    message: "Не вділося отримати відповідь Vision",
-                    ok: false,
-                  })
-                );
-            }
           } else {
             res.send({
               message: `Щось пішло не так... Спробуйте ще.`,
