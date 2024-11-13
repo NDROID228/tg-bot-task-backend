@@ -102,7 +102,7 @@ app.post("/upload", async (req, res) => {
 
             bot.answerWebAppQuery(queryId, {
                 type: "article",
-                id: queryId,
+                id: "h132brpu3iub3ofqhi3bihb32hi",
                 title: "Відповідь Vision",
                 input_message_content: { message_text: description },
               })
